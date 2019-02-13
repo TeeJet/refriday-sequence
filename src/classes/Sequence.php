@@ -11,17 +11,15 @@ class Sequence
     public function __construct(array $progression)
     {
         $this->progression = array_values($progression);
-        $this->count = $this->getSize();
-        $this->ratio = $this->getRatio();
     }
 
     public function isGeometric()
     {
-        if ($this->count <= 1) {
-            return true;
+        if ($this->getSize() <= 1 || $this->getFirstItem() == 0 || $this->getRatio() == 0) {
+            return false;
         }
 
-        for ($i = 1; $i < $this->count; $i++) {
+        for ($i = 1; $i < $this->getSize(); $i++) {
             if (!$this->checkRatio($i)) {
                 return false;
             }
@@ -32,7 +30,7 @@ class Sequence
 
     public function getFirstItem()
     {
-        if ($this->count == 0) {
+        if ($this->getSize() == 0) {
             throw new \InvalidArgumentException("Can't get first item from empty progression");
         }
         return $this->progression[0];
@@ -40,8 +38,11 @@ class Sequence
 
     public function getRatio()
     {
-        if ($this->count <= 1) {
-            return 0;
+        if ($this->getSize() <= 1) {
+            throw new \InvalidArgumentException("Can't get ratio from a sequence of less than two elements");
+        }
+        if ($this->progression[0] == 0) {
+            throw new \InvalidArgumentException("Can't division by zero");
         }
         return $this->ratio ?? $this->progression[1] / $this->progression[0];
     }
@@ -53,6 +54,6 @@ class Sequence
 
     private function checkRatio(int $i)
     {
-        return $this->progression[$i] / ($this->progression[$i - 1]) == $this->ratio;
+        return $this->progression[$i] / ($this->progression[$i - 1]) == $this->getRatio();
     }
 }
